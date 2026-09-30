@@ -1,0 +1,20 @@
+# Ignore LLM models directory (large binaries)
+models/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# Environment variables
+.env
+
+# System & IDE files
+.DS_Store
+.vscode/
+.idea/
+*.log

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat IA Bontech | Interface Web ChatGPT</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Highlight.js CSS for Code Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon"><i class="fa-solid fa-robot"></i></div>
+          <div class="brand-text">
+            <h2>Chat IA Bontech</h2>
+            <span>Assistente Privado</span>
+          </div>
+        </div>
+        <button class="btn-new-chat" id="btn-new-chat">
+          <i class="fa-solid fa-plus"></i> Novo Chat
+        </button>
+      </div>
+
+      <!-- Select & Download Model Section -->
+      <div class="model-selector-box">
+        <label for="model-select"><i class="fa-solid fa-microchip"></i> Modelo Ativo:</label>
+        <div class="select-wrapper">
+          <select id="model-select">
+            <option value="">Carregando modelos...</option>
+          </select>
+          <button class="btn-icon" id="btn-refresh-models" title="Atualizar modelos">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+        <button class="btn-pull-modal" id="btn-open-pull-modal">
+          <i class="fa-solid fa-cloud-arrow-down"></i> Baixar Novo Modelo
+        </button>
+      </div>
+
+      <!-- Chat History -->
+      <div class="history-container">
+        <div class="history-label">HISTÓRICO DE CHATS</div>
+        <div class="history-list" id="history-list">
+          <!-- Renderizado via JS -->
+        </div>
+      </div>
+
+      <!-- Connection Status Footer -->
+      <div class="sidebar-footer">
+        <div class="status-indicator" id="status-indicator">
+          <span class="status-dot offline"></span>
+          <span class="status-text">Verificando Ollama...</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Chat Window -->
+    <main class="chat-main">
+      
+      <!-- Top Navbar -->
+      <header class="chat-header">
+        <button class="btn-toggle-sidebar" id="btn-toggle-sidebar" title="Alternar Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="active-model-title">
+          <span class="model-badge" id="current-model-badge">qwen2.5:0.5b</span>
+          <span class="chat-title-text" id="chat-title-text">Nova Conversa</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn-header" id="btn-clear-chat" title="Limpar conversa atual">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Messages Scroll Area -->
+      <div class="messages-container" id="messages-container">
+        
+        <!-- Welcome Screen / Empty State -->
+        <div class="welcome-screen" id="welcome-screen">
+          <div class="welcome-icon">
+            <i class="fa-solid fa-brain"></i>
+          </div>
+          <h1>Como posso ajudar você hoje?</h1>
+          <p>Sua IA privada Bontech rodando 100% localmente no seu computador.</p>
+
+          <div class="prompt-cards">
+            <div class="card-prompt" data-prompt="Crie um script em Python para ler um arquivo JSON e ordenar seus dados.">
+              <i class="fa-solid fa-code"></i>
+              <div class="card-text">
+                <strong>Escrever código Python</strong>
+                <span>Leitura e ordenação de JSON</span>
+              </div>
+            </div>
+
+            <div class="card-prompt" data-prompt="Explique de forma simples e didática o que é o Docker e para que serve.">
+              <i class="fa-solid fa-layer-group"></i>
+              <div class="card-text">
+                <strong>Explicar conceitos</strong>
+                <span>O que é Docker e containers</span>
+              </div>
+            </div>
+
+            <div class="card-prompt" data-prompt="Escreva 3 ideias criativas de receitas rápidas para o café da manhã.">
+              <i class="fa-solid fa-lightbulb"></i>
+              <div class="card-text">
+                <strong>Ideias criativas</strong>
+                <span>Receitas rápidas para café</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Messages List -->
+        <div class="chat-messages" id="chat-messages">
+          <!-- Mensagens dinâmicas aqui -->
+        </div>
+      </div>
+
+      <!-- Input Bar Container -->
+      <footer class="chat-input-wrapper">
+        <form id="chat-form" class="chat-form">
+          <div class="input-box">
+            <textarea 
+              id="user-input" 
+              placeholder="Envie uma mensagem para a LLM local (pressione Enter para enviar, Shift+Enter para nova linha)..." 
+              rows="1"
+              required
+            ></textarea>
+            <button type="submit" id="btn-send" class="btn-send" title="Enviar mensagem">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+        </form>
+        <div class="input-footer">
+          <span id="input-footer-text">Ollama LLM local — Execução rápida e privada no seu computador.</span>
+        </div>
+      </footer>
+
+    </main>
+
+  </div>
+
+  <!-- Modal para Baixar Novo Modelo -->
+  <div class="modal-overlay" id="pull-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-cloud-arrow-down"></i> Baixar Modelo Leve</h3>
+        <button class="btn-close-modal" id="btn-close-pull-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Escolha um dos modelos recomendados ou digite o nome de qualquer modelo do Ollama Hub:</p>
+        
+        <div class="model-quick-select">
+          <button class="btn-chip" data-model="gemma2:2b">gemma2:2b (1.6GB - Google Gemma 2)</button>
+          <button class="btn-chip" data-model="qwen2.5:0.5b">qwen2.5:0.5b (398MB - Ultraleve)</button>
+          <button class="btn-chip" data-model="llama3.2:1b">llama3.2:1b (1.3GB - Rápido)</button>
+          <button class="btn-chip" data-model="tinyllama">tinyllama (637MB)</button>
+          <button class="btn-chip" data-model="phi3:mini">phi3:mini (2.3GB - Inteligente)</button>
+        </div>
+
+        <div class="form-group">
+          <label for="custom-model-input">Nome do Modelo:</label>
+          <input type="text" id="custom-model-input" placeholder="ex: qwen2.5:0.5b" value="qwen2.5:0.5b">
+        </div>
+
+        <div class="pull-progress-box" id="pull-progress-box" style="display: none;">
+          <div class="progress-status" id="pull-status-text">Iniciando download...</div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="pull-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-cancel-pull">Fechar</button>
+        <button class="btn-primary" id="btn-start-pull"><i class="fa-solid fa-download"></i> Baixar Modelo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Third-party JS libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  
+  <!-- Custom JS Application -->
+  <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+</body>
+</html>
