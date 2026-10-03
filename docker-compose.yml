@@ -26,3 +26,10 @@ services:
     depends_on:
       - ollama
     restart: unless-stopped
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
